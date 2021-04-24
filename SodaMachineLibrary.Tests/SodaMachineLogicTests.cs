@@ -122,5 +122,236 @@ namespace SodaMachineLibrary.Tests
 
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public void GetSodaPrice_ShouldWork()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            decimal expected = da.MachineInfo.sodaPrice;
+            decimal actual = logic.GetSodaPrice();
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetTotalIncome_ShouldWork()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            decimal expected = da.MachineInfo.totalIncome;
+            decimal actual = logic.GetTotalIncome();
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void IssueFullRefund_ShouldWork()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+            string user = "test";
+
+            da.UserCredit[user] = 0.65M;
+
+            logic.IssueFullRefund(user);
+
+            Assert.True(da.UserCredit[user] == 0);
+        }
+
+        [Fact]
+        public void ListTypesOfSoda_ShouldWork()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            int expected = 3;
+            int actual = logic.ListTypesOfSoda().Count();
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void MoneyInserted_SingleUserShouldHaveCorrectAmmount()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            string user = "test";
+            decimal money = 0.25M;
+
+            logic.MoneyInserted(user, money);
+
+            decimal expected = money;
+            decimal actual = da.UserCredit[user];
+
+            Assert.Equal(expected, actual);
+
+            logic.MoneyInserted(user, money);
+
+            expected += money;
+            actual += da.UserCredit[user];
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void MoneyInserted_User2ShouldHaveCorrectAmount()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            string user1 = "test";
+            string user2 = "Jake";
+            decimal money = 0.25M;
+            decimal user2Money = 0.10M;
+
+            logic.MoneyInserted(user1, money);
+            logic.MoneyInserted(user2, user2Money);
+            logic.MoneyInserted(user1, money);
+
+            decimal expected = user2Money;
+            decimal actual = da.UserCredit[user2];
+
+            Assert.Equal(expected, actual);
+
+        }
+
+        [Fact]
+        public void RequestSoda_ShouldReturnSodaWithNoChange()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            string user = "test";
+            SodaModel expectedSoda = new SodaModel { Name = "Coke", SlotOccupied = "1" };
+            var initialState = da.MachineInfo;
+
+            da.UserCredit[user] = 0.75M;
+
+            var results = logic.RequestSoda(expectedSoda);
+
+            Assert.Equal(expectedSoda.Name, results.soda.Name);
+            Assert.Equal(expectedSoda.SlotOccupied, results.soda.SlotOccupied);
+
+            Assert.Equal(0, da.UserCredit[user]);
+
+            Assert.Equal(initialState.cashOnHand + 0.75M, da.MachineInfo.cashOnHand);
+            Assert.Equal(initialState.totalIncome + 0.75M, da.MachineInfo.totalIncome);
+
+            Assert.True(string.IsNullOrWhiteSpace(results.errorMessage));
+
+            Assert.True(results.change.Count() == 0);
+        }
+
+        [Fact]
+        public void RequestSoda_ShouldSayNotEnoughMoney()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            string user = "test";
+            SodaModel expectedSoda = new SodaModel { Name = "Coke", SlotOccupied = "1" };
+            var initialState = da.MachineInfo;
+
+            da.UserCredit[user] = 0.50M;
+
+            var results = logic.RequestSoda(expectedSoda);
+
+            Assert.Null(results.soda);
+
+            Assert.Equal(0.5M, da.UserCredit[user]);
+
+            Assert.Equal(initialState.cashOnHand + 0.75M, da.MachineInfo.cashOnHand);
+            Assert.Equal(initialState.totalIncome + 0.75M, da.MachineInfo.totalIncome);
+
+            Assert.False(string.IsNullOrWhiteSpace(results.errorMessage));
+
+            Assert.True(results.change.Count() == 0);
+        }
+
+        [Fact]
+        public void RequestSoda_ShouldSayOutOfStock()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            string user = "test";
+            SodaModel expectedSoda = new SodaModel { Name = "Fanta", SlotOccupied = "4" };
+            var initialState = da.MachineInfo;
+
+            da.UserCredit[user] = 0.75M;
+
+            var results = logic.RequestSoda(expectedSoda);
+
+            Assert.Null(results.soda);
+
+            Assert.Equal(0.5M, da.UserCredit[user]);
+
+            Assert.Equal(initialState.cashOnHand + 0.75M, da.MachineInfo.cashOnHand);
+            Assert.Equal(initialState.totalIncome + 0.75M, da.MachineInfo.totalIncome);
+
+            Assert.False(string.IsNullOrWhiteSpace(results.errorMessage));
+
+            Assert.True(results.change.Count() == 0);
+        }
+
+        [Fact]
+        public void RequestSoda_ShouldReturnSodaWithChange()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            string user = "test";
+            SodaModel expectedSoda = new SodaModel { Name = "Coke", SlotOccupied = "1" };
+            var initialState = da.MachineInfo;
+
+            da.UserCredit[user] = 1M;
+
+            var results = logic.RequestSoda(expectedSoda);
+
+            Assert.Equal(expectedSoda.Name, results.soda.Name);
+            Assert.Equal(expectedSoda.SlotOccupied, results.soda.SlotOccupied);
+
+            Assert.Equal(0, da.UserCredit[user]);
+
+            Assert.Equal(initialState.cashOnHand + 1M, da.MachineInfo.cashOnHand);
+            Assert.Equal(initialState.totalIncome + 1M, da.MachineInfo.totalIncome);
+
+            Assert.True(string.IsNullOrWhiteSpace(results.errorMessage));
+
+            Assert.True(results.change.Count() == 1);
+        }
+
+        [Fact]
+        public void RequestSoda_ShouldReturnWithAlternateChange()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            string user = "test";
+            SodaModel expectedSoda = new SodaModel { Name = "Coke", SlotOccupied = "1" };
+            var initialState = da.MachineInfo;
+
+            da.UserCredit[user] = 1M;
+            da.CoinInventory.RemoveAll(x => x.Amount == 0.25M);
+
+            var results = logic.RequestSoda(expectedSoda);
+
+            Assert.Equal(expectedSoda.Name, results.soda.Name);
+            Assert.Equal(expectedSoda.SlotOccupied, results.soda.SlotOccupied);
+
+            Assert.Equal(0, da.UserCredit[user]);
+
+            Assert.Equal(initialState.cashOnHand + 1M, da.MachineInfo.cashOnHand);
+            Assert.Equal(initialState.totalIncome + 1M, da.MachineInfo.totalIncome);
+
+            Assert.True(string.IsNullOrWhiteSpace(results.errorMessage));
+
+            // Dime + Dime + Nickle = Quarter
+            Assert.True(results.change.Count() == 3);
+        }
     }
 }
