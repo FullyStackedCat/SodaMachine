@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SodaMachineLibrary", "SodaMachineLibrary\SodaMachineLibrary.csproj", "{D3EB9A66-A69D-42BB-AAE1-80D16BB61838}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SodaMachineLibrary.Tests", "SodaMachineLibrary.Tests\SodaMachineLibrary.Tests.csproj", "{E6A69648-B292-46BB-8FCD-877176525B07}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3EB9A66-A69D-42BB-AAE1-80D16BB61838}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3EB9A66-A69D-42BB-AAE1-80D16BB61838}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3EB9A66-A69D-42BB-AAE1-80D16BB61838}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3EB9A66-A69D-42BB-AAE1-80D16BB61838}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6A69648-B292-46BB-8FCD-877176525B07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6A69648-B292-46BB-8FCD-877176525B07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6A69648-B292-46BB-8FCD-877176525B07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6A69648-B292-46BB-8FCD-877176525B07}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9A80A62F-0970-4923-BC84-A0C6FBC5FAD3}
+	EndGlobalSection
+EndGlobal
