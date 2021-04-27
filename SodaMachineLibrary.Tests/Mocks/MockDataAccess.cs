@@ -93,9 +93,26 @@ namespace SodaMachineLibrary.Tests.Mocks
             return SodaInventory;
         }
 
-        public SodaModel SodaInventory_GetSoda(SodaModel soda)
+        public bool SodaInventory_CheckIfSodaInStock(SodaModel soda)
         {
-            return SodaInventory.Where(x => x.Name == soda.Name).FirstOrDefault();
+            var outputSoda = SodaInventory.Where(x => x.Name == soda.Name).FirstOrDefault();
+
+            return outputSoda != null;
+        }
+
+        public SodaModel SodaInventory_GetSoda(SodaModel soda, decimal amount)
+        {
+            var outputSoda = SodaInventory.Where(x => x.Name == soda.Name).FirstOrDefault();
+
+            if (outputSoda != null)
+            {
+                var info = MachineInfo;
+                info.cashOnHand += amount;
+                info.totalIncome += amount;
+                MachineInfo = info;
+            }
+
+            return outputSoda;
         }
 
         public List<SodaModel> SodaInventory_GetTypes()

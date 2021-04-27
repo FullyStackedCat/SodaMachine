@@ -7,22 +7,23 @@ namespace SodaMachineLibrary.DataAccess
     {
         // Gets list of soda types
         List<SodaModel> SodaInventory_GetTypes();
-        SodaModel SodaInventory_GetSoda(SodaModel soda);
+        bool SodaInventory_CheckIfSodaInStock(SodaModel soda);
+        SodaModel SodaInventory_GetSoda(SodaModel soda, decimal amount);
         void SodaInventory_AddSodas(List<SodaModel> sodas);
         List<SodaModel> SodaInventory_GetAll();
 
-
-        // Money Inserted
+        // Money inserted
         void UserCredit_Insert(string userId, decimal amount);
         void UserCredit_Clear(string userId);
         decimal UserCredit_Total(string userId);
         void UserCredit_Deposit(string userId);
 
-        // Get soda price
+        // Machine info
         decimal MachineInfo_SodaPrice();
         decimal MachineInfo_EmptyCash();
         decimal MachineInfo_CashOnHand();
         decimal MachineInfo_TotalIncome();
+
 
         // Get coin inventory
         List<CoinModel> CoinInventory_WithdrawCoins(decimal coinValue, int quantity);

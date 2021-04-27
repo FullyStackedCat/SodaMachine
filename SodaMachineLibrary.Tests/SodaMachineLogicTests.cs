@@ -192,7 +192,7 @@ namespace SodaMachineLibrary.Tests
             logic.MoneyInserted(user, money);
 
             expected += money;
-            actual += da.UserCredit[user];
+            actual = da.UserCredit[user];
 
             Assert.Equal(expected, actual);
         }
@@ -231,7 +231,7 @@ namespace SodaMachineLibrary.Tests
 
             da.UserCredit[user] = 0.75M;
 
-            var results = logic.RequestSoda(expectedSoda);
+            var results = logic.RequestSoda(expectedSoda, user);
 
             Assert.Equal(expectedSoda.Name, results.soda.Name);
             Assert.Equal(expectedSoda.SlotOccupied, results.soda.SlotOccupied);
@@ -256,16 +256,16 @@ namespace SodaMachineLibrary.Tests
             SodaModel expectedSoda = new SodaModel { Name = "Coke", SlotOccupied = "1" };
             var initialState = da.MachineInfo;
 
-            da.UserCredit[user] = 0.50M;
+            da.UserCredit[user] = 0.5M;
 
-            var results = logic.RequestSoda(expectedSoda);
+            var results = logic.RequestSoda(expectedSoda, user);
 
             Assert.Null(results.soda);
 
             Assert.Equal(0.5M, da.UserCredit[user]);
 
-            Assert.Equal(initialState.cashOnHand + 0.75M, da.MachineInfo.cashOnHand);
-            Assert.Equal(initialState.totalIncome + 0.75M, da.MachineInfo.totalIncome);
+            Assert.Equal(initialState.cashOnHand, da.MachineInfo.cashOnHand);
+            Assert.Equal(initialState.totalIncome, da.MachineInfo.totalIncome);
 
             Assert.False(string.IsNullOrWhiteSpace(results.errorMessage));
 
@@ -284,14 +284,41 @@ namespace SodaMachineLibrary.Tests
 
             da.UserCredit[user] = 0.75M;
 
-            var results = logic.RequestSoda(expectedSoda);
+            var results = logic.RequestSoda(expectedSoda, user);
 
             Assert.Null(results.soda);
 
-            Assert.Equal(0.5M, da.UserCredit[user]);
+            Assert.Equal(0.75M, da.UserCredit[user]);
 
-            Assert.Equal(initialState.cashOnHand + 0.75M, da.MachineInfo.cashOnHand);
-            Assert.Equal(initialState.totalIncome + 0.75M, da.MachineInfo.totalIncome);
+            Assert.Equal(initialState.cashOnHand, da.MachineInfo.cashOnHand);
+            Assert.Equal(initialState.totalIncome, da.MachineInfo.totalIncome);
+
+            Assert.False(string.IsNullOrWhiteSpace(results.errorMessage));
+
+            Assert.True(results.change.Count() == 0);
+        }
+
+        [Fact]
+        public void RequestSoda_ShouldSayNotEnoughChange()
+        {
+            MockDataAccess da = new MockDataAccess();
+            SodaMachineLogic logic = new SodaMachineLogic(da);
+
+            string user = "test";
+            SodaModel expectedSoda = new SodaModel { Name = "Coke", SlotOccupied = "1" };
+            var initialState = da.MachineInfo;
+
+            da.UserCredit[user] = 1.75M;
+            da.CoinInventory.Clear();
+
+            var results = logic.RequestSoda(expectedSoda, user);
+
+            Assert.Null(results.soda);
+
+            Assert.Equal(1.75M, da.UserCredit[user]);
+
+            Assert.Equal(initialState.cashOnHand, da.MachineInfo.cashOnHand);
+            Assert.Equal(initialState.totalIncome, da.MachineInfo.totalIncome);
 
             Assert.False(string.IsNullOrWhiteSpace(results.errorMessage));
 
@@ -310,7 +337,7 @@ namespace SodaMachineLibrary.Tests
 
             da.UserCredit[user] = 1M;
 
-            var results = logic.RequestSoda(expectedSoda);
+            var results = logic.RequestSoda(expectedSoda, user);
 
             Assert.Equal(expectedSoda.Name, results.soda.Name);
             Assert.Equal(expectedSoda.SlotOccupied, results.soda.SlotOccupied);
@@ -338,7 +365,7 @@ namespace SodaMachineLibrary.Tests
             da.UserCredit[user] = 1M;
             da.CoinInventory.RemoveAll(x => x.Amount == 0.25M);
 
-            var results = logic.RequestSoda(expectedSoda);
+            var results = logic.RequestSoda(expectedSoda, user);
 
             Assert.Equal(expectedSoda.Name, results.soda.Name);
             Assert.Equal(expectedSoda.SlotOccupied, results.soda.SlotOccupied);

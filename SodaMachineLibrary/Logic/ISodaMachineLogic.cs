@@ -13,9 +13,9 @@ namespace SodaMachineLibrary.Logic
         // Gets the overall price for sodas - there is no individual pricing
         decimal GetSodaPrice();
 
-        (SodaModel soda, List<CoinModel> change, string errorMessage) RequestSoda(SodaModel soda);
+        (SodaModel soda, List<CoinModel> change, string errorMessage) RequestSoda(SodaModel soda, string userId);
 
-        void IssueFullRefund();
+        void IssueFullRefund(string userId);
 
         decimal GetMoneyInsertedTotal(string userId);
 
