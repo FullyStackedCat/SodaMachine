@@ -9,10 +9,16 @@ namespace SodaMachineConsoleUI
     class Program
     {
         private static IServiceProvider _serviceProvider;
+        private static ISodaMachineLogic _sodaMachine;
+        private static string userId;
 
         static void Main(string[] args)
         {
             RegisterServies();
+
+            _sodaMachine = _serviceProvider.GetService<ISodaMachineLogic>();
+            userId = new Guid().ToString();
+
             string userSelection = "";
 
             Console.WriteLine("Welcome to our Soda Machine.");
@@ -24,16 +30,16 @@ namespace SodaMachineConsoleUI
                 switch (userSelection)
                 {
                     case "1": // Show Soda Price
-
+                        ShowSodaPrice();
                         break;
                     case "2": // List Soda Options
-
+                        ListSodaOptions();
                         break;
                     case "3": // Show Amount Deposited
-
+                        ShowAmountDeposited();
                         break;
                     case "4": // Deposit Money
-
+                        DepositMoney();
                         break;
                     case "5": // Cancel Transaction
 
@@ -56,6 +62,51 @@ namespace SodaMachineConsoleUI
 
             Console.ReadLine();
 
+        }
+
+        private static void DepositMoney()
+        {
+            // Get what to deposit
+            Console.WriteLine("How much would you like to add to machine: ");
+            string amountText = Console.ReadLine();
+
+            bool isValidAmount = decimal.TryParse(amountText, out decimal amountAdded);
+
+            // Deposit that amount
+            _sodaMachine.MoneyInserted(userId, amountAdded);
+        }
+
+        private static void ShowAmountDeposited()
+        {
+            var amountDposited = _sodaMachine.GetMoneyInsertedTotal(userId);
+
+            Console.Clear();
+            Console.WriteLine($"You have deposited { String.Format("{0:C}", amountDposited) }");
+            Console.WriteLine();
+            Console.WriteLine("Press enter to continue...");
+            Console.ReadLine();
+        }
+
+        private static void ListSodaOptions()
+        {
+            var sodas = _sodaMachine.ListTypesOfSoda();
+
+            Console.Clear();
+            Console.WriteLine("The soda options are:");
+            sodas.ForEach(x => Console.WriteLine(x.Name));
+            Console.WriteLine();
+            Console.WriteLine("Press enter to continue...");
+            Console.ReadLine();
+        }
+
+        private static void ShowSodaPrice()
+        {
+            var sodaPrice = _sodaMachine.GetSodaPrice();
+            Console.Clear();
+            Console.WriteLine($"The price for soda is { String.Format("{0:C}", sodaPrice) }");
+            Console.WriteLine();
+            Console.WriteLine("Press enter to continue...");
+            Console.ReadLine();
         }
 
         private static string ShowMenu()
