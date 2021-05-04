@@ -58,7 +58,7 @@ namespace SodaMachineConsoleUI
                 Console.Clear();
             } while (userSelection != "9");
 
-            Console.WriteLine("Thanks, have a nice day.");
+            Console.WriteLine("Thank you, have a nice day.");
             Console.WriteLine("Press return to quit...");
 
             Console.ReadLine();
