@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SodaMachineLibrary.DataAccess;
 using SodaMachineLibrary.Logic;
+using SodaMachineLibrary.Models;
 using System;
 
 namespace SodaMachineConsoleUI
@@ -42,10 +43,10 @@ namespace SodaMachineConsoleUI
                         DepositMoney();
                         break;
                     case "5": // Cancel Transaction
-
+                        CancelTransaction();
                         break;
                     case "6": // Request Soda
-
+                        RequestSoda();
                         break;
                     case "9": // Close Machine
                         // Don't do anything - allow this to go to while, which will EXIT the loop
@@ -62,6 +63,75 @@ namespace SodaMachineConsoleUI
 
             Console.ReadLine();
 
+        }
+
+        private static void RequestSoda()
+        {
+            // Identify which soda the user wants
+            var sodas = _sodaMachine.ListTypesOfSoda();
+            var i = 1;
+
+            Console.Clear();
+            Console.WriteLine("Which soda number would you like?:");
+
+            sodas.ForEach(x => Console.WriteLine($"{ i++ } - { x.Name }"));
+
+            string sodaIdentifier = Console.ReadLine();
+            bool isValidIdentifier = int.TryParse(sodaIdentifier, out int sodaNumber);
+            SodaModel soda;
+
+            try
+            {
+                soda = sodas[sodaNumber - 1];
+            }
+            catch
+            {
+                Console.WriteLine("That was not a valid soda number.");
+                Console.WriteLine();
+                Console.WriteLine("Press enter to continue...");
+                Console.ReadLine();
+                return;
+            }
+
+            // Request that soda
+            var results = _sodaMachine.RequestSoda(soda, userId);
+
+            // Handle the response
+            if (results.errorMessage.Length > 0)
+            {
+                Console.WriteLine(results.errorMessage);
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine($"Here is your { results.soda.Name }");
+
+                if (results.change.Count > 0)
+                {
+                    Console.WriteLine("Here is your change:");
+                    results.change.ForEach(x => Console.WriteLine(x.Name));
+                }
+                else
+                {
+
+                    Console.WriteLine("No change returned. Used exact change.");
+                }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Press enter to continue...");
+            Console.ReadLine();
+        }
+
+        private static void CancelTransaction()
+        {
+            var amountDposited = _sodaMachine.GetMoneyInsertedTotal(userId);
+
+            Console.Clear();
+            Console.WriteLine($"Transaction Canceled. Refunded { amountDposited }.");
+            Console.WriteLine("Press enter to continue...");
+            Console.ReadLine();
+            _sodaMachine.IssueFullRefund(userId);
         }
 
         private static void DepositMoney()
