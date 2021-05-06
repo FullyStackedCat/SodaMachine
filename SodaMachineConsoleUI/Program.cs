@@ -126,12 +126,12 @@ namespace SodaMachineConsoleUI
         private static void CancelTransaction()
         {
             var amountDposited = _sodaMachine.GetMoneyInsertedTotal(userId);
+            _sodaMachine.IssueFullRefund(userId);
 
             Console.Clear();
-            Console.WriteLine($"Transaction Canceled. Refunded { amountDposited }.");
+            Console.WriteLine($"Transaction Canceled. Refunded { String.Format("{0:C}", amountDposited) }.");
             Console.WriteLine("Press enter to continue...");
             Console.ReadLine();
-            _sodaMachine.IssueFullRefund(userId);
         }
 
         private static void DepositMoney()
